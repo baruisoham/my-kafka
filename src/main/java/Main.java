@@ -1,3 +1,4 @@
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -26,16 +27,12 @@ public class Main {
       serverSocket.setReuseAddress(true);
       // Wait for connection from client.
       clientSocket = serverSocket.accept();
-      byte[] requestBytes = clientSocket.getInputStream().readAllBytes();
-      int correlationId = 0;
-      try {
-          if (requestBytes.length >= 8) {
-              Request newRequest = Request.getRequestFromBytes(requestBytes);
-              correlationId = newRequest.getHeader().getCorrelationId();
-          }
-      } catch (Exception e) {
-          // If parsing fails, correlationId stays 0
-      }
+      BufferedInputStream in = new BufferedInputStream(clientSocket.getInputStream());
+     
+              Request newRequest = Request.getRequestFromBytes(in);
+              int correlationId = newRequest.getHeader().getCorrelationId();
+         
+     
       Response newResponse = new Response(0, new Header(correlationId));
       clientSocket.getOutputStream().write(newResponse.getResponseAsBytes());
     } catch (IOException e) {

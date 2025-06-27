@@ -1,5 +1,8 @@
 package request;
 
+import java.io.BufferedInputStream;
+import java.nio.ByteBuffer;
+
 //request header v2
 public class RequestHeader {
     private short request_api_key; // API key for request, 2 bytes
@@ -56,22 +59,26 @@ public class RequestHeader {
         this.tag_buffer = tag_buffer;
     }
 
-    public static RequestHeader getRequestHeaderFromBytes(byte[] requestHeaderBytes) {
+    public static RequestHeader getRequestHeaderFromBytes(BufferedInputStream in) {
         // Convert byte array to RequestHeader object
-        if (requestHeaderBytes.length < 8) {
-            throw new IllegalArgumentException("RequestHeader byte array is too short");
-        }
+        try {
+            //in.ReadBytes gives us bytes. These bytes are then converted to the appropriate data types.
+            short apiKey = ByteBuffer.wrap(in.readNBytes(2)).getShort(); //unsigned 16 bit integer
+            short apiVersion = ByteBuffer.wrap(in.readNBytes(2)).getShort();
+            int correlationId = ByteBuffer.wrap(in.readNBytes(4)).getInt();
+            
+            // TODO: Replace 1 with the actual clientId length as per protocol
+            int clientIdLength = 1; // Example fixed length, adjust as needed
+            byte[] clientIdBytes = in.readNBytes(clientIdLength);
+            String clientId = new String(clientIdBytes); // client id length needs to be fixed so that the rest of the bytes can go to tagBuffer
 
-        short apiKey = (short) ((requestHeaderBytes[0] << 8) | (requestHeaderBytes[1] & 0xFF)); //unsigned 16 bit integer
-        short apiVersion = (short) ((requestHeaderBytes[2] << 8) | (requestHeaderBytes[3] & 0xFF));
-        int correlationId = (requestHeaderBytes[4] << 24) | ((requestHeaderBytes[5] & 0xFF) << 16) |
-                    ((requestHeaderBytes[6] & 0xFF) << 8) | (requestHeaderBytes[7] & 0xFF);
-        String clientId = new String(requestHeaderBytes, 8, requestHeaderBytes.length - 8); // client id length needs to be fixed so that the rest of the bytes can go to tagBuffer
-        
-        // Assuming tag_buffer is empty for simplicity
-        byte[] tagBuffer = null; // This should be replaced with actual logic to parse tags if needed
-        
-        return new RequestHeader(apiKey, apiVersion, correlationId, clientId, tagBuffer);
+            // Assuming tag_buffer is empty for simplicity
+            byte[] tagBuffer = null; // This should be replaced with actual logic to parse tags if needed
+            
+            return new RequestHeader(apiKey, apiVersion, correlationId, clientId, tagBuffer);
+        } catch (java.io.IOException e) {
+            throw new RuntimeException("Failed to read RequestHeader from stream", e);
+        }
     }
 
     public int getSizeInBytes() {

@@ -1,5 +1,8 @@
 package request;
 
+import java.io.BufferedInputStream;
+import java.nio.ByteBuffer;
+
 public class Request {
     private int message_size; // Java 'int' is always 4 bytes (32 bits)
     private RequestHeader header;
@@ -39,19 +42,14 @@ public class Request {
         return requestBytes;
     }
 
-    public static Request getRequestFromBytes(byte[] requestBytes) {
+    public static Request getRequestFromBytes(BufferedInputStream in) throws java.io.IOException {
         // Convert byte array to Request object
-        if (requestBytes.length < 8) {
-            throw new IllegalArgumentException("Request byte array is too short");
-        }
 
-        int messageSize = (requestBytes[0] << 24) | ((requestBytes[1] & 0xFF) << 16) |
-                ((requestBytes[2] & 0xFF) << 8) | (requestBytes[3] & 0xFF);
+        byte[] messageSizeBytes = in.readNBytes(4);
+        int messageSize = ByteBuffer.wrap(messageSizeBytes).getInt();
 
         // Extract header bytes (after the first 4 bytes)
-        byte[] headerBytes = new byte[requestBytes.length - Integer.BYTES];  // header starts after the first 4 bytes (message_size)
-        System.arraycopy(requestBytes, Integer.BYTES, headerBytes, 0, headerBytes.length);
-        RequestHeader header = RequestHeader.getRequestHeaderFromBytes(headerBytes);
+        RequestHeader header = RequestHeader.getRequestHeaderFromBytes(in);
         return new Request(messageSize, header);
     }
 }
