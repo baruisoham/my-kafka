@@ -3,7 +3,6 @@ package request;
 import java.io.BufferedInputStream;
 import java.nio.ByteBuffer;
 
-import request.requestBody.ApiVersionsRequestBody;
 import request.requestBody.IRequestBody;
 import request.requestBody.RequestBodyFactory;
 
@@ -53,6 +52,8 @@ public class Request {
         byte[] headerBytes = header.getRequestHeaderAsBytes();
         System.arraycopy(headerBytes, 0, requestBytes, Integer.BYTES, headerBytes.length);
 
+        // TODO: requestBody is yet to be converted to bytes
+
         return requestBytes;
     }
 
@@ -64,7 +65,10 @@ public class Request {
 
         // Extract header bytes (after the first 4 bytes)
         RequestHeader header = RequestHeader.getRequestHeaderFromBytes(in);
-        IRequestBody requestBody = RequestBodyFactory.createRequestBody(header, in);
+
+        // TODO: use requestBodySize to understand how much to read for request body
+        int requestBodySize = messageSize - header.getSizeInBytes();
+        IRequestBody requestBody = RequestBodyFactory.createRequestBody(header, in, requestBodySize);
 
         return new Request(messageSize, header, requestBody);
     }

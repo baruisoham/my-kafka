@@ -38,7 +38,7 @@ public class Main {
       int correlationId = newRequest.getHeader().getCorrelationId();
 
       // make a response to be sent to client
-      Response newResponse = new Response(0, new ResponseHeader(correlationId), ResponseBodyFactory.createResponseBody(newRequest.getHeader()));
+      Response newResponse = new Response(new ResponseHeader(correlationId), ResponseBodyFactory.createResponseBody(newRequest.getHeader(), inputStreamFromClient, newRequest.getMessageSize() - newRequest.getHeader().getSizeInBytes()));
 
       // send the response in the form of bytes to the outputstream
       StreamUtils.sendResponse(outStreamToClient, newResponse); // to send response back to the client

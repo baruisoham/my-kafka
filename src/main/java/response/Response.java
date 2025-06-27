@@ -13,8 +13,8 @@ public class Response {
     private ResponseHeader header;
     private IResponseBody responseBody; // This can be used to hold the body of the response.
 
-    public Response(int message_size, ResponseHeader header, IResponseBody responseBody) {
-        this.message_size = message_size;
+    public Response(ResponseHeader header, IResponseBody responseBody) {
+        this.message_size = header.getSizeInBytes() + responseBody.getSizeInBytes(); // message_size includes the size of the header and body
         this.header = header;
         this.responseBody = responseBody;
     }
@@ -45,12 +45,8 @@ public class Response {
             baos.write((byte) (message_size >> 16));
             baos.write((byte) (message_size >> 8));
             baos.write((byte) (message_size));
-            
-            int correlationId = header.getCorrelationId();
-            baos.write((byte) (correlationId >> 24));
-            baos.write((byte) (correlationId >> 16));
-            baos.write((byte) (correlationId >> 8));
-            baos.write((byte) (correlationId));
+
+            baos.write(header.getResponseHeaderAsBytes()); // Get the header bytes
 
             baos.write(responseBody.toBytes()); // Get the response body bytes
 
@@ -75,8 +71,10 @@ public class Response {
 
         final ResponseHeader header = new ResponseHeader(correlationId);
 
+        // TODO: use messageSize to understand how much to read for response body
+        int responseBodySize = messageSize - header.getSizeInBytes();
         IResponseBody responseBody = ResponseBodyFactory.createResponseBody(requestHeader);
 
-        return new Response(messageSize, header, responseBody);
+        return new Response(header, responseBody);
     }
 }

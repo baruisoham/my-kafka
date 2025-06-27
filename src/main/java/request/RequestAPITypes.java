@@ -13,26 +13,22 @@ import utils.Constants;
 // Each API type has an associated API key, the oldest supported version, and the newest supported version.
 // The API key is used to identify the request type, and the version range is used to validate the request.
 public enum RequestAPITypes {
-    Invalid(-1, 0, 0, 0, 0),
-    ApiVersions(18 , 0, 4, 0, 2), // For ApiVersions, the request body is empty
-    Produce(0, 0,4, 0, 0),
-    CreateTopics(2, 0, 4, 0, 0),
-    Fetch(3, 0, 4, 0, 0),
-    ListOffsets(4, 0, 4, 0, 0),
-    Metadata(5, 0, 4, 0, 0);
+    Invalid(-1, 0, 0),
+    ApiVersions(18 , 0, 4),
+    Produce(0, 0,4),
+    CreateTopics(2, 0, 4),
+    Fetch(3, 0, 4),
+    ListOffsets(4, 0, 4),
+    Metadata(5, 0, 4);
 
     public int apiKey;
     public int supported_version_oldest;
     public int supported_version_newest;
-    public int requestBodySize; // This is the size of the request body for this API type. It is used to read the request body from the input stream.
-    public int responseBodySize; // This is the size of the response body for this API type. It is used to read the response body from the input stream.
-
-    RequestAPITypes(int apiKey, int supported_version_oldest, int supported_version_newest, int requestBodySize, int responseBodySize) {
+    
+    RequestAPITypes(int apiKey, int supported_version_oldest, int supported_version_newest) {
         this.apiKey = apiKey;
         this.supported_version_oldest = supported_version_oldest;
         this.supported_version_newest = supported_version_newest;
-        this.requestBodySize = requestBodySize;
-        this.responseBodySize = responseBodySize;
     }
 
     public int getApiKey() {
@@ -45,14 +41,6 @@ public enum RequestAPITypes {
 
     public int getSupportedVersionNewest() {
         return supported_version_newest;
-    }
-
-    public int getRequestBodySizeInBytes() {
-        return requestBodySize;
-    }
-
-    public int getResponseBodySizeInBytes() {
-        return responseBodySize;
     }
 
     static private HashMap<Integer, RequestAPITypes> IdMapping = new HashMap<>();

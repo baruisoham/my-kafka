@@ -11,11 +11,12 @@ public class RequestBodyFactory {
      * This method will create the request body based on the API type and version.
      * Then set the rest of the data in the request body as needed.
      */
-    public static IRequestBody createRequestBody(RequestHeader header, BufferedInputStream in) throws java.io.IOException {
+    public static IRequestBody createRequestBody(RequestHeader header, BufferedInputStream in, int requestBodySizeInBytes) throws java.io.IOException {
         RequestAPITypes apiType = RequestAPITypes.getFromApiKey(header.getRequestApiKey());
         IRequestBody requestBody;
         // Only read the number of bytes required to create the request body.
-        byte[] requestBodyInBytes = in.readNBytes(apiType.getRequestBodySizeInBytes());
+        byte[] requestBodyInBytes = in.readNBytes(requestBodySizeInBytes);
+        // TODO: use the requestBodyInBytes to parse the request body. Make parser methods for each API type if needed.
         switch (apiType) {
             case ApiVersions:
                 requestBody = new ApiVersionsRequestBody();
