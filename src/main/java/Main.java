@@ -29,7 +29,7 @@ public class Main {
       // clientSocket.getOutputStream().write(response.getResponseAsBytes());
       byte[] requestBytes = clientSocket.getInputStream().readAllBytes();
       Request newRequest = Request.getRequestFromBytes(requestBytes);
-      Response newResponse = new Response(0, new Header(newRequest.getCorrelationId()));
+      Response newResponse = new Response(4, new Header(newRequest.getCorrelationId()));
       // Send the response back to the client
       clientSocket.getOutputStream().write(newResponse.getResponseAsBytes());
     } catch (IOException e) {
