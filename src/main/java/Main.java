@@ -28,14 +28,14 @@ public class Main {
       serverSocket.setReuseAddress(true);
       // Wait for connection from client.
       clientSocket = serverSocket.accept();
-      // initialise the input and output streams for the client socket
-      BufferedInputStream inputStreamFromClient = new BufferedInputStream(clientSocket.getInputStream());
-      BufferedOutputStream outputStreamToClient = new BufferedOutputStream(clientSocket.getOutputStream());
-
-      Request newRequest = StreamUtils.receiveRequest(inputStreamFromClient);
-      int correlationId = newRequest.getHeader().getCorrelationId();
+      BufferedInputStream in = new BufferedInputStream(clientSocket.getInputStream());
+     
+              Request newRequest = Request.getRequestFromBytes(in);
+              int correlationId = newRequest.getHeader().getCorrelationId();
+         
+     
       Response newResponse = new Response(0, new Header(correlationId));
-      StreamUtils.sendResponse(outputStreamToClient, newResponse);
+      clientSocket.getOutputStream().write(newResponse.getResponseAsBytes());
     } catch (IOException e) {
       System.out.println("IOException: " + e.getMessage());
     } finally {
