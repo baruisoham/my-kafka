@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import request.Request;
 import response.Header;
 import response.Response;
 
@@ -25,7 +26,12 @@ public class Main {
       serverSocket.setReuseAddress(true);
       // Wait for connection from client.
       clientSocket = serverSocket.accept();
-      clientSocket.getOutputStream().write(response.getResponseAsBytes());
+      // clientSocket.getOutputStream().write(response.getResponseAsBytes());
+      byte[] requestBytes = clientSocket.getInputStream().readAllBytes();
+      Request newRequest = Request.getRequestFromBytes(requestBytes);
+      Response newResponse = new Response(0, new Header(newRequest.getCorrelationId()));
+      // Send the response back to the client
+      clientSocket.getOutputStream().write(newResponse.getResponseAsBytes());
     } catch (IOException e) {
       System.out.println("IOException: " + e.getMessage());
     } finally {

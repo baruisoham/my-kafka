@@ -1,5 +1,6 @@
 package response;
 
+//response header v0
 public class Response {
     // message_size is explicitly a 4-byte (32-bit) integer
     private int message_size; // Java 'int' is always 4 bytes (32 bits)
@@ -41,5 +42,21 @@ public class Response {
         responseBytes[7] = (byte) (correlationId);
 
         return responseBytes;
+    }
+
+    public static Response getResponseFromBytes(byte[] responseBytes) {
+        // Convert byte array to Response object
+        if (responseBytes.length < 8) {
+            throw new IllegalArgumentException("Response byte array is too short");
+        }
+        
+        final int messageSize = (responseBytes[0] << 24) | ((responseBytes[1] & 0xFF) << 16) |
+                          ((responseBytes[2] & 0xFF) << 8) | (responseBytes[3] & 0xFF);
+        
+        final int correlationId = (responseBytes[4] << 24) | ((responseBytes[5] & 0xFF) << 16) |
+                            ((responseBytes[6] & 0xFF) << 8) | (responseBytes[7] & 0xFF);   //correlation_id is unsigned. So the first byte is treated as signed, the rest are treated as unsigned.
+
+        final Header header = new Header(correlationId);
+        return new Response(messageSize, header);
     }
 }
