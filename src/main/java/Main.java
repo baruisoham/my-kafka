@@ -29,12 +29,8 @@ public class Main {
       // clientSocket.getOutputStream().write(response.getResponseAsBytes());
       // Always send a valid response, even if requestBytes is empty
       byte[] requestBytes = clientSocket.getInputStream().readAllBytes();
-      int correlationId = 0;
-      if (requestBytes.length >= 8) {
-          Request newRequest = Request.getRequestFromBytes(requestBytes);
-          correlationId = newRequest.getCorrelationId();
-      }
-      Response newResponse = new Response(4, new Header(correlationId));
+      Request newRequest = Request.getRequestFromBytes(requestBytes);
+      Response newResponse = new Response(4, new Header(newRequest.getHeader().getCorrelationId()));
       clientSocket.getOutputStream().write(newResponse.getResponseAsBytes());
     } catch (IOException e) {
       System.out.println("IOException: " + e.getMessage());

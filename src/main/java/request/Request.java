@@ -1,76 +1,57 @@
 package request;
 
-//request header v2
 public class Request {
-    private short request_api_key; // API key for request, 2 bytes
-    private short request_api_version; // API version, 2 bytes
-    private int correlation_id; // Correlation ID, 4 bytes signed int - correlation ID is the same in request and its corresponding response. Done to match the request with the response.
-    private String client_id;
-    private byte[] tag_buffer; // Tag buffer, variable length, can be empty.
+    private int message_size; // Java 'int' is always 4 bytes (32 bits)
+    private RequestHeader header;
 
-    public Request(short request_api_key, short request_api_version, int correlation_id, String client_id, byte[] tag_buffer) {
-        this.request_api_key = request_api_key;
-        this.request_api_version = request_api_version;
-        this.correlation_id = correlation_id;
-        this.client_id = client_id;
-        this.tag_buffer = tag_buffer;
+    public Request(int message_size, RequestHeader header) {
+        this.message_size = message_size;
+        this.header = header;
     }
 
-    public short getRequestApiKey() {
-        return request_api_key;
+    public int getMessageSize() {
+        return message_size;
     }
 
-    public void setRequestApiKey(short request_api_key) {
-        this.request_api_key = request_api_key;
+    public RequestHeader getHeader() {
+        return header;
     }
 
-    public short getRequestApiVersion() {
-        return request_api_version;
+    public void setMessageSize(int message_size) {
+        this.message_size = message_size;
     }
 
-    public void setRequestApiVersion(short request_api_version) {
-        this.request_api_version = request_api_version;
+    public void setHeader(RequestHeader header) {
+        this.header = header;
     }
 
-    public int getCorrelationId() {
-        return correlation_id;
-    }
+    public byte[] getRequestAsBytes() {
+        // Convert the message size and header to a byte array
+        byte[] requestBytes = new byte[Integer.BYTES + header.getSizeInBytes()];
+        requestBytes[0] = (byte) (message_size >> 24);
+        requestBytes[1] = (byte) (message_size >> 16);
+        requestBytes[2] = (byte) (message_size >> 8);
+        requestBytes[3] = (byte) (message_size);
 
-    public void setCorrelationId(int correlation_id) {
-        this.correlation_id = correlation_id;
-    }
+        byte[] headerBytes = header.getRequestHeaderAsBytes();
+        System.arraycopy(headerBytes, 0, requestBytes, Integer.BYTES, headerBytes.length);
 
-    public String getClientId() {
-        return client_id;
-    }
-
-    public void setClientId(String client_id) {
-        this.client_id = client_id;
-    }
-
-    public byte[] getTagBuffer() {
-        return tag_buffer;
-    }
-
-    public void setTagBuffer(byte[] tag_buffer) {
-        this.tag_buffer = tag_buffer;
+        return requestBytes;
     }
 
     public static Request getRequestFromBytes(byte[] requestBytes) {
         // Convert byte array to Request object
-        // if (requestBytes.length < 10) {
-        //     throw new IllegalArgumentException("Request byte array is too short");
-        // }
-        
-        short apiKey = (short) ((requestBytes[0] << 8) | (requestBytes[1] & 0xFF)); //unsigned 16 bit integer
-        short apiVersion = (short) ((requestBytes[2] << 8) | (requestBytes[3] & 0xFF));
-        int correlationId = (requestBytes[4] << 24) | ((requestBytes[5] & 0xFF) << 16) |
-                    ((requestBytes[6] & 0xFF) << 8) | (requestBytes[7] & 0xFF);
-        String clientId = new String(requestBytes, 8, requestBytes.length - 8); // client id length needs to be fixed so that the rest of the bytes can go to tagBuffer
-        
-        // Assuming tag_buffer is empty for simplicity
-        byte[] tagBuffer = null; // This should be replaced with actual logic to parse tags if needed
-        
-        return new Request(apiKey, apiVersion, correlationId, clientId, tagBuffer);
+        if (requestBytes.length < 8) {
+            throw new IllegalArgumentException("Request byte array is too short");
+        }
+
+        int messageSize = (requestBytes[0] << 24) | ((requestBytes[1] & 0xFF) << 16) |
+                ((requestBytes[2] & 0xFF) << 8) | (requestBytes[3] & 0xFF);
+
+        // Extract header bytes (after the first 4 bytes)
+        byte[] headerBytes = new byte[requestBytes.length - Integer.BYTES];  // header starts after the first 4 bytes (message_size)
+        System.arraycopy(requestBytes, Integer.BYTES, headerBytes, 0, headerBytes.length);
+        RequestHeader header = RequestHeader.getRequestHeaderFromBytes(headerBytes);
+        return new Request(messageSize, header);
     }
 }
