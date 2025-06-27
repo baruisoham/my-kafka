@@ -19,8 +19,6 @@ public class Main {
     Socket clientSocket = null;
     int port = 9092;
 
-    Header header = new Header(7);
-    Response response = new Response(0, header);
     try {
       serverSocket = new ServerSocket(port);
       // Since the tester restarts your program quite often, setting SO_REUSEADDR
@@ -29,13 +27,13 @@ public class Main {
       // Wait for connection from client.
       clientSocket = serverSocket.accept();
       BufferedInputStream in = new BufferedInputStream(clientSocket.getInputStream());
-     
+      BufferedOutputStream out = new BufferedOutputStream(clientSocket.getOutputStream());
               Request newRequest = Request.getRequestFromBytes(in);
               int correlationId = newRequest.getHeader().getCorrelationId();
          
      
       Response newResponse = new Response(0, new Header(correlationId));
-      clientSocket.getOutputStream().write(newResponse.getResponseAsBytes());
+      out.write(newResponse.getResponseAsBytes());
     } catch (IOException e) {
       System.out.println("IOException: " + e.getMessage());
     } finally {
