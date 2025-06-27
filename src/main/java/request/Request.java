@@ -58,9 +58,9 @@ public class Request {
 
     public static Request getRequestFromBytes(byte[] requestBytes) {
         // Convert byte array to Request object
-        if (requestBytes.length < 10) {
-            throw new IllegalArgumentException("Request byte array is too short");
-        }
+        // if (requestBytes.length < 10) {
+        //     throw new IllegalArgumentException("Request byte array is too short");
+        // }
         
         short apiKey = (short) ((requestBytes[0] << 8) | (requestBytes[1] & 0xFF)); //unsigned 16 bit integer
         short apiVersion = (short) ((requestBytes[2] << 8) | (requestBytes[3] & 0xFF));
