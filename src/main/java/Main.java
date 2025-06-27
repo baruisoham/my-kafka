@@ -1,4 +1,5 @@
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -18,8 +19,6 @@ public class Main {
     Socket clientSocket = null;
     int port = 9092;
 
-    Header header = new Header(7);
-    Response response = new Response(0, header);
     try {
       serverSocket = new ServerSocket(port);
       // Since the tester restarts your program quite often, setting SO_REUSEADDR
@@ -27,14 +26,15 @@ public class Main {
       serverSocket.setReuseAddress(true);
       // Wait for connection from client.
       clientSocket = serverSocket.accept();
-      BufferedInputStream in = new BufferedInputStream(clientSocket.getInputStream());
-     
-              Request newRequest = Request.getRequestFromBytes(in);
-              int correlationId = newRequest.getHeader().getCorrelationId();
-         
-     
+      // initialise the input and output streams for the client socket
+      BufferedInputStream inputStreamFromClient = new BufferedInputStream(clientSocket.getInputStream());
+      BufferedOutputStream outputStreamToClient = new BufferedOutputStream(clientSocket.getOutputStream());
+
+      Request newRequest = StreamUtils.receiveRequest(inputStreamFromClient);
+      int correlationId = newRequest.getHeader().getCorrelationId();
       Response newResponse = new Response(0, new Header(correlationId));
-      clientSocket.getOutputStream().write(newResponse.getResponseAsBytes());
+      StreamUtils.sendResponse(outputStreamToClient, newResponse);
+      
     } catch (IOException e) {
       System.out.println("IOException: " + e.getMessage());
     } finally {
