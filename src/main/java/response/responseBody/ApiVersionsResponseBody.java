@@ -11,7 +11,7 @@ public class ApiVersionsResponseBody implements IResponseBody {
     private short api_key; // This is the API key for ApiVersions, which is a constant value defined in RequestAPITypes.
     private short min_version;
     private short max_version;
-    private byte tagged_fields; // This is the number of tagged fields in the response. For ApiVersions, it is always 0.
+    private byte tagged_fields; // tagged field is a mechanism for adding future-proof fields to protocol messages without breaking compatibility. It allows new fields to be added in later protocol versions, while older clients/servers can safely ignore them.
     private int throttle_time_ms; // This is the time in milliseconds that the client should wait before retrying the request. For ApiVersions, it is always 0.
 
     private ApiVersionsResponseBody() {}
