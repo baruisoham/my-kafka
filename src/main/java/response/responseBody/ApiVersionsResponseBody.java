@@ -12,6 +12,7 @@ public class ApiVersionsResponseBody implements IResponseBody {
     private short min_version;
     private short max_version;
     private byte tagged_fields; // This is the number of tagged fields in the response. For ApiVersions, it is always 0.
+    private int throttle_time_ms; // This is the time in milliseconds that the client should wait before retrying the request. For ApiVersions, it is always 0.
 
     private ApiVersionsResponseBody() {}
 
@@ -25,6 +26,7 @@ public class ApiVersionsResponseBody implements IResponseBody {
         min_version = RequestAPITypes.ApiVersions.getSupportedVersionOldest();
         max_version = RequestAPITypes.ApiVersions.getSupportedVersionNewest();
         tagged_fields = 0; // For ApiVersions, we have no tagged fields
+        throttle_time_ms = 0; // For ApiVersions, we have no throttle time
     }
 
     public short getErrorCode() {
@@ -52,6 +54,12 @@ public class ApiVersionsResponseBody implements IResponseBody {
         baos.write(max_version & 0xFF);
         // Serialize tagged_fields (byte)
         baos.write(tagged_fields & 0xFF);
+        // Serialize throttle_time_ms (int)
+        baos.write((throttle_time_ms >> 24) & 0xFF);
+        baos.write((throttle_time_ms >> 16) & 0xFF);
+        baos.write((throttle_time_ms >> 8) & 0xFF);
+        baos.write(throttle_time_ms & 0xFF);
+
         return baos.toByteArray();
     }
 }
