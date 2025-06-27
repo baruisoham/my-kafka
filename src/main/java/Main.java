@@ -26,15 +26,15 @@ public class Main {
       serverSocket.setReuseAddress(true);
       // Wait for connection from client.
       clientSocket = serverSocket.accept();
-      // initialise the input and output streams for the client socket
-      BufferedInputStream inputStreamFromClient = new BufferedInputStream(clientSocket.getInputStream());
-      BufferedOutputStream outputStreamToClient = new BufferedOutputStream(clientSocket.getOutputStream());
-
-      Request newRequest = StreamUtils.receiveRequest(inputStreamFromClient);
-      int correlationId = newRequest.getHeader().getCorrelationId();
+      BufferedInputStream in = new BufferedInputStream(clientSocket.getInputStream());
+      BufferedOutputStream out = new BufferedOutputStream(clientSocket.getOutputStream());
+              Request newRequest = Request.getRequestFromBytes(in);
+              int correlationId = newRequest.getHeader().getCorrelationId();
+         
+     
       Response newResponse = new Response(0, new Header(correlationId));
-      StreamUtils.sendResponse(outputStreamToClient, newResponse);
-      
+      out.write(newResponse.getResponseAsBytes());
+      out.flush(); // sometimes, when we want to write and send data, the data is still in the memory, not transferred to buffer. We use flush() to force the data to be sent immediately.
     } catch (IOException e) {
       System.out.println("IOException: " + e.getMessage());
     } finally {
