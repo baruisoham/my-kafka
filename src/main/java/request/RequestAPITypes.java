@@ -13,37 +13,37 @@ import utils.Constants;
 // Each API type has an associated API key, the oldest supported version, and the newest supported version.
 // The API key is used to identify the request type, and the version range is used to validate the request.
 public enum RequestAPITypes {
-    Invalid(-1, 0, 0),
-    ApiVersions(18 , 0, 4),
-    Produce(0, 0,4),
-    CreateTopics(2, 0, 4),
-    Fetch(3, 0, 4),
-    ListOffsets(4, 0, 4),
-    Metadata(5, 0, 4);
+    Invalid((short)-1, (short)0, (short)0),
+    ApiVersions((short)18, (short)0, (short)4),
+    Produce((short)0, (short)0, (short)4),
+    CreateTopics((short)2, (short)0, (short)4),
+    Fetch((short)3, (short)0, (short)4),
+    ListOffsets((short)4, (short)0, (short)4),
+    Metadata((short)5, (short)0, (short)4);
 
-    public int apiKey;
-    public int supported_version_oldest;
-    public int supported_version_newest;
-    
-    RequestAPITypes(int apiKey, int supported_version_oldest, int supported_version_newest) {
+    public short apiKey;
+    public short supported_version_oldest;
+    public short supported_version_newest;
+
+    RequestAPITypes(short apiKey, short supported_version_oldest, short supported_version_newest) {
         this.apiKey = apiKey;
         this.supported_version_oldest = supported_version_oldest;
         this.supported_version_newest = supported_version_newest;
     }
 
-    public int getApiKey() {
+    public short getApiKey() {
         return apiKey;
     }
 
-    public int getSupportedVersionOldest() {
+    public short getSupportedVersionOldest() {
         return supported_version_oldest;
     }
 
-    public int getSupportedVersionNewest() {
+    public short getSupportedVersionNewest() {
         return supported_version_newest;
     }
 
-    static private HashMap<Integer, RequestAPITypes> IdMapping = new HashMap<>();
+    static private HashMap<Short, RequestAPITypes> IdMapping = new HashMap<>();
     static private HashMap<String, RequestAPITypes> NameMapping = new HashMap<>();
     static{
         for (RequestAPITypes type : RequestAPITypes.values()) {
@@ -52,7 +52,7 @@ public enum RequestAPITypes {
         }
     }
 
-    public static RequestAPITypes getFromApiKey(int apiKey) {
+    public static RequestAPITypes getFromApiKey(short apiKey) {
         return IdMapping.get(apiKey);
     }
 
