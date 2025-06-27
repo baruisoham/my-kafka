@@ -12,5 +12,6 @@ public class StreamUtils {
 
     public static void sendResponse(BufferedOutputStream outputStreamToClient, Response response) throws IOException {
         outputStreamToClient.write(response.getResponseAsBytes());
+        outputStreamToClient.flush(); // sometimes data we want to send is still in the buffer, so we need to flush it. So data is sent immediately.
     }
 }
