@@ -34,6 +34,7 @@ public class Main {
      
       Response newResponse = new Response(0, new Header(correlationId));
       out.write(newResponse.getResponseAsBytes());
+      out.flush(); // sometimes, when we want to write and send data, the data is still in the memory, not transferred to buffer. We use flush() to force the data to be sent immediately.
     } catch (IOException e) {
       System.out.println("IOException: " + e.getMessage());
     } finally {
