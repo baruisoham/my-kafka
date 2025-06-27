@@ -21,12 +21,12 @@ public class ApiVersionsResponseBody implements IResponseBody {
         this.error_code = 0; // Assuming no error by default
         error_code = RequestAPITypes.ApiVersions.isVersionSupported(versionRequested); // for all other request types also, use isVersionSupported() in constructor
         // if the version is not supported, we have set error_code = UNSUPPORTED_VERSION
-        num_api_keys = 2; // For ApiVersions, we have only one API key. num_api_key= 1 + 1
-        api_key = RequestAPITypes.ApiVersions.getApiKey(); // Get the API key for ApiVersions
-        min_version = RequestAPITypes.ApiVersions.getSupportedVersionOldest();
-        max_version = RequestAPITypes.ApiVersions.getSupportedVersionNewest();
-        tagged_fields = 0; // For ApiVersions, we have no tagged fields
-        throttle_time_ms = 0; // For ApiVersions, we have no throttle time
+        this.num_api_keys = 2; // For ApiVersions, we have only one API key. num_api_key= 1 + 1
+        this.api_key = RequestAPITypes.ApiVersions.getApiKey(); // Get the API key for ApiVersions
+        this.min_version = RequestAPITypes.ApiVersions.getSupportedVersionOldest();
+        this.max_version = RequestAPITypes.ApiVersions.getSupportedVersionNewest();
+        this.tagged_fields = 0; // For ApiVersions, we have no tagged fields
+        this.throttle_time_ms = 0; // For ApiVersions, we have no throttle time
     }
 
     public short getErrorCode() {
@@ -59,6 +59,8 @@ public class ApiVersionsResponseBody implements IResponseBody {
         baos.write((throttle_time_ms >> 16) & 0xFF);
         baos.write((throttle_time_ms >> 8) & 0xFF);
         baos.write(throttle_time_ms & 0xFF);
+        // Serialize tagged_fields (byte) - second instance
+        baos.write(tagged_fields & 0xFF);
 
         return baos.toByteArray();
     }
