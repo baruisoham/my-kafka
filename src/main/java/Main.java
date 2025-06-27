@@ -26,11 +26,17 @@ public class Main {
       serverSocket.setReuseAddress(true);
       // Wait for connection from client.
       clientSocket = serverSocket.accept();
-      // clientSocket.getOutputStream().write(response.getResponseAsBytes());
-      // Always send a valid response, even if requestBytes is empty
       byte[] requestBytes = clientSocket.getInputStream().readAllBytes();
-      Request newRequest = Request.getRequestFromBytes(requestBytes);
-      Response newResponse = new Response(4, new Header(newRequest.getHeader().getCorrelationId()));
+      int correlationId = 0;
+      try {
+          if (requestBytes.length >= 8) {
+              Request newRequest = Request.getRequestFromBytes(requestBytes);
+              correlationId = newRequest.getHeader().getCorrelationId();
+          }
+      } catch (Exception e) {
+          // If parsing fails, correlationId stays 0
+      }
+      Response newResponse = new Response(0, new Header(correlationId));
       clientSocket.getOutputStream().write(newResponse.getResponseAsBytes());
     } catch (IOException e) {
       System.out.println("IOException: " + e.getMessage());
