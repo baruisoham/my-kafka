@@ -26,9 +26,10 @@ public class ApiVersionsResponseBody implements IResponseBody {
     }
 
     public byte[] toBytes() {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        baos.write((byte) (error_code));
-        return baos.toByteArray();
-    }
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    baos.write((error_code >> 8) & 0xFF); // high byte
+    baos.write(error_code & 0xFF);        // low byte
+    return baos.toByteArray();
+}
 
 }
