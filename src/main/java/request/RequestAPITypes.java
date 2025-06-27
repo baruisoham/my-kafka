@@ -14,8 +14,8 @@ import utils.Constants;
 // The API key is used to identify the request type, and the version range is used to validate the request.
 public enum RequestAPITypes {
     Invalid(-1, 0, 0, 0, 0),
-    ApiVersions(0 , 0, 4, 0, 2), // For ApiVersions, the request body is empty
-    Produce(1, 0,4, 0, 0),
+    ApiVersions(18 , 0, 4, 0, 2), // For ApiVersions, the request body is empty
+    Produce(0, 0,4, 0, 0),
     CreateTopics(2, 0, 4, 0, 0),
     Fetch(3, 0, 4, 0, 0),
     ListOffsets(4, 0, 4, 0, 0),
