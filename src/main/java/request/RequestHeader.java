@@ -5,8 +5,8 @@ import java.nio.ByteBuffer;
 
 //request header v2
 public class RequestHeader {
-    private short request_api_key; // API key for request, 2 bytes
-    private short request_api_version; // API version, 2 bytes
+    private short request_api_key; // Every Kafka request is an API call. The Kafka protocol defines over 70 different APIs, all of which do different things. 
+    private short request_api_version; // Every API call has a version. If I send a request for an older version of API, server will respond with a response of the same old version.
     private int correlation_id; // Correlation ID, 4 bytes signed int - correlation ID is the same in request and its corresponding response. Done to match the request with the response.
     private String client_id;
     private byte[] tag_buffer; // Tag buffer, variable length, can be empty.

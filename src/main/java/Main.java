@@ -5,7 +5,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import request.Request;
-import response.Header;
+import response.ResponseHeader;
+import response.responseBody.ResponseBodyFactory;
 import response.Response;
 
 public class Main {
@@ -26,11 +27,20 @@ public class Main {
       serverSocket.setReuseAddress(true);
       // Wait for connection from client.
       clientSocket = serverSocket.accept();
+
+      // Set the streams to read input from client and write output to client.
       BufferedInputStream inputStreamFromClient = new BufferedInputStream(clientSocket.getInputStream());
       BufferedOutputStream outStreamToClient = new BufferedOutputStream(clientSocket.getOutputStream());
+
+      // create request from the input stream
       Request newRequest = StreamUtils.receiveRequest(inputStreamFromClient);
+
       int correlationId = newRequest.getHeader().getCorrelationId();
-      Response newResponse = new Response(0, new Header(correlationId));
+
+      // make a response to be sent to client
+      Response newResponse = new Response(0, new ResponseHeader(correlationId), ResponseBodyFactory.createResponseBody(newRequest.getHeader()));
+
+      // send the response in the form of bytes to the outputstream
       StreamUtils.sendResponse(outStreamToClient, newResponse); // to send response back to the client
     } catch (IOException e) {
       System.out.println("IOException: " + e.getMessage());
